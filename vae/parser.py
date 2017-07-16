@@ -27,3 +27,10 @@ def get_default_parser():
 	parser.add_argument('--std', type=float, default=.02)
 
 	return parser
+
+def get_outlier_parser():
+	parser = get_default_parser()
+	parser.add_argument('--num_searches', type=int, default=8)
+	parser.add_argument('--num_test_samples', type=int, default=5000)
+
+	return parser
