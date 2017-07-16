@@ -12,14 +12,13 @@ from vae.nn import VAE
 to_np = lambda x: x.data.cpu().numpy()
 normalize_to_zero_one = lambda x: (x + 1.) / 2.
 
-
 if __name__ == "__main__":
 
 	torch.backends.cudnn.benchmark = True
 
 	parser = get_default_parser()
 	config = parser.parse_args()
-	# training_digits = [0, 1, 2, 3, 4, 5, 6, 7, 9]
+	training_digits = [0, 1, 2, 3, 4, 5, 6, 7, 9]
 	# training_digits = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 	os.makedirs(config.ckpt_path, exist_ok=True)
@@ -66,11 +65,11 @@ if __name__ == "__main__":
 		if epoch % config.num_every_nth_epoch == 0:
 			# every n'th epoch, plot samples ..
 			samples = v.Decoder(z_fixed)
-			samples.resize(config.num_samples, 1, config.img_size, config.img_size)
+			samples = samples.resize(config.num_samples, 1, config.img_size, config.img_size)
 			torchvision.utils.save_image(samples.data, '%s/%03d.png' % (config.img_path, epoch / config.num_every_nth_epoch), normalize=True)
 
 			# .. checkpoint ..
-			torch.save(v.state_dict(), os.path.join(config.ckpt_path, 'vae.pth'))
+			torch.save(v.state_dict(), os.path.join(config.ckpt_path, 'v.pth'))
 
 			# .. and collect loss
 			logger["loss"] = np.append(logger["loss"], to_np(loss))
