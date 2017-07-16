@@ -12,7 +12,7 @@ class Encoder(nn.Module):
 		super(Encoder, self).__init__()
 		self.config = config
 		self.main = nn.Sequential(
-			nn.Linear(config.img_size**2, config.h_dim),
+			nn.Linear(config.num_channels * config.img_size**2, config.h_dim),
 			nn.ReLU()
 			)
 		self.linear_mu = nn.Linear(self.config.h_dim, self.config.z_dim)
@@ -40,7 +40,7 @@ class Decoder(nn.Module):
 		self.main = nn.Sequential(
 			nn.Linear(config.z_dim, config.h_dim),
 			nn.ReLU(),
-			nn.Linear(config.h_dim, config.img_size**2),
+			nn.Linear(config.h_dim, config.num_channels * config.img_size**2),
 			nn.Sigmoid()
 			)
 		self.reset_bias_and_weights()

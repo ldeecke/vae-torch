@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
 		batch_size = images.size(0)
 
-		x = Variable(images.type(torch.cuda.FloatTensor)).resize(batch_size, config.img_size**2)
+		x = Variable(images.type(torch.cuda.FloatTensor)).resize(batch_size, config.num_channels * config.img_size**2)
 		x = x.repeat(config.num_searches, 1)
 		x = normalize_to_zero_one(x)
 		x_r = v(x) # reconstruction
