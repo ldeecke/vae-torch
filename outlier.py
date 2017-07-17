@@ -24,6 +24,9 @@ if __name__ == "__main__":
 
 	data_loader, config.img_size, config.num_channels = MNIST(config.data_path, 1, config.num_workers, train=False)
 
+	config.c_dim = [32, config.img_size // (2**4), config.img_size // (2**4)]
+	config.c_dim_flat = int(np.prod(config.c_dim))
+
 	v = VAE(config)
 	v = v.cuda()
 	v.load_state_dict(torch.load(os.path.join(config.ckpt_path, 'v.pth')))
@@ -40,8 +43,9 @@ if __name__ == "__main__":
 
 		batch_size = images.size(0)
 
-		x = Variable(images.type(torch.cuda.FloatTensor)).resize(batch_size, config.num_channels * config.img_size**2)
-		x = x.repeat(config.num_searches, 1)
+		x = Variable(images.type(torch.cuda.FloatTensor))
+		# x = x.resize(batch_size, config.num_channels * config.img_size**2)
+		x = x.repeat(config.num_searches, 1, 1, 1)
 		x = normalize_to_zero_one(x)
 		x_r = v(x) # reconstruction
 
