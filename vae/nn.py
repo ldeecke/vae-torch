@@ -3,6 +3,7 @@ from torch.autograd import Variable
 import torch.nn as nn
 
 from itertools import chain
+from numpy import prod
 
 class Encoder(nn.Module):
 	"""
@@ -21,8 +22,8 @@ class Encoder(nn.Module):
 			nn.Conv2d(64, 32, 4, 2, 1, bias=True),
 			nn.ReLU()
 			)
-		self.linear_mu = nn.Linear(config.c_dim_flat, self.config.z_dim)
-		self.linear_log_sigma_sq = nn.Linear(config.c_dim_flat, self.config.z_dim)
+		self.linear_mu = nn.Linear(int(prod(config.c_dim)), self.config.z_dim)
+		self.linear_log_sigma_sq = nn.Linear(int(prod(config.c_dim)), self.config.z_dim)
 		self.reset_bias_and_weights()
 
 	def reset_bias_and_weights(self):
@@ -48,9 +49,9 @@ class Decoder(nn.Module):
 		super(Decoder, self).__init__()
 		self.config = config
 		self.main_1 = nn.Sequential(
-			nn.Linear(config.z_dim, config.c_dim_flat),
+			nn.Linear(config.z_dim, int(prod(config.c_dim))),
 			nn.ReLU(),
-			nn.Linear(config.c_dim_flat, config.c_dim_flat),
+			nn.Linear(int(prod(config.c_dim)), int(prod(config.c_dim))),
 			nn.ReLU()
 			)
 		self.main_2 = nn.Sequential(

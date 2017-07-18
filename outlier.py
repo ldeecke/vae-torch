@@ -5,7 +5,7 @@ import torchvision
 import numpy as np
 import os, time
 
-from vae.parser import get_outlier_parser
+from vae.parser import get_outlier_parser, update_img_and_filter_dims
 from vae.data import CIFAR10, MNIST, SVHN
 from vae.nn import VAE
 
@@ -22,10 +22,8 @@ if __name__ == "__main__":
 	os.makedirs(config.ckpt_path, exist_ok=True)
 	os.makedirs(config.data_path, exist_ok=True)
 
-	data_loader, config.img_size, config.num_channels = MNIST(config.data_path, 1, config.num_workers, train=False)
-
-	config.c_dim = [32, config.img_size // (2**4), config.img_size // (2**4)]
-	config.c_dim_flat = int(np.prod(config.c_dim))
+	data_loader, img_size, num_channels = CIFAR10(config.data_path, 1, config.num_workers, train=False)
+	update_img_and_filter_dims(config, img_size, num_channels)
 
 	v = VAE(config)
 	v = v.cuda()

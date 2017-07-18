@@ -19,14 +19,22 @@ def get_default_parser():
 	parser.add_argument('--data_path', type=str, default="data")
 	parser.add_argument('--img_path', type=str, default="img")
 
-	parser.add_argument('--h_dim', type=int, default=128)
 	parser.add_argument('--z_dim', type=int, default=100)
 	parser.add_argument('--lr_adam', type=float, default=1.e-3)
 	parser.add_argument('--beta_1', type=float, default=.5)
 	parser.add_argument('--beta_2', type=float, default=.999)
 	parser.add_argument('--std', type=float, default=.02)
 
+	parser.add_argument('--num_filters', type=int, default=32)
+	parser.add_argument('--num_conv_layers', type=int, default=4)
+
 	return parser
+
+def update_img_and_filter_dims(config, img_size, num_channels):
+	config.img_size = img_size
+	config.num_channels = num_channels
+	config.c_dim = [config.num_filters, img_size // 2**config.num_conv_layers, img_size // 2**config.num_conv_layers]
+	# config.c_dim_flat = int(np.prod(config.c_dim))
 
 def get_outlier_parser():
 	parser = get_default_parser()
