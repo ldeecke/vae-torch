@@ -8,7 +8,7 @@ def str_to_bool(v):
 def get_default_parser():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--batch_size', type=int, default=128)
-	parser.add_argument('--num_epochs', type=int, default=250)
+	parser.add_argument('--num_epochs', type=int, default=100)
 	parser.add_argument('--num_samples', type=int, default=64) # number of samples and ..
 	parser.add_argument('--num_every_nth_epoch', type=int, default=1) # .. how often to store them
 	parser.add_argument('--num_gpus', type=int, default=1) # unused
@@ -25,7 +25,7 @@ def get_default_parser():
 	parser.add_argument('--beta_2', type=float, default=.999)
 	parser.add_argument('--std', type=float, default=.02)
 
-	parser.add_argument('--num_filters', type=int, default=32)
+	parser.add_argument('--num_filters_in_final_layer', type=int, default=128)
 	parser.add_argument('--num_conv_layers', type=int, default=4)
 
 	return parser
@@ -33,8 +33,7 @@ def get_default_parser():
 def update_img_and_filter_dims(config, img_size, num_channels):
 	config.img_size = img_size
 	config.num_channels = num_channels
-	config.c_dim = [config.num_filters, img_size // 2**config.num_conv_layers, img_size // 2**config.num_conv_layers]
-	# config.c_dim_flat = int(np.prod(config.c_dim))
+	config.c_dim = [config.num_filters_in_final_layer, img_size // 2**config.num_conv_layers, img_size // 2**config.num_conv_layers]
 
 def get_outlier_parser():
 	parser = get_default_parser()
