@@ -12,15 +12,20 @@ class Encoder(nn.Module):
 	def __init__(self, config):
 		super(Encoder, self).__init__()
 		self.config = config
+
 		self.main = nn.Sequential(
-			nn.Conv2d(config.num_channels, 16, 4, 2, 1, bias=True),
-			nn.ReLU(),
-			nn.Conv2d(16, 32, 4, 2, 1, bias=True),
-			nn.ReLU(),
-			nn.Conv2d(32, 64, 4, 2, 1, bias=True),
-			nn.ReLU(),
-			nn.Conv2d(64, 32, 4, 2, 1, bias=True),
-			nn.ReLU()
+			nn.Conv2d(config.num_channels, 64, 4, 2, 1, bias=False),
+			nn.BatchNorm2d(64),
+			nn.ReLU(True),
+			nn.Conv2d(64, 128, 4, 2, 1, bias=False),
+			nn.BatchNorm2d(128),
+			nn.ReLU(True),
+			nn.Conv2d(128, 256, 4, 2, 1, bias=False),
+			nn.BatchNorm2d(256),
+			nn.ReLU(True),
+			nn.Conv2d(256, 128, 4, 2, 1, bias=False),
+			nn.BatchNorm2d(128),
+			nn.ReLU(True)
 			)
 		self.linear_mu = nn.Linear(int(prod(config.c_dim)), self.config.z_dim)
 		self.linear_log_sigma_sq = nn.Linear(int(prod(config.c_dim)), self.config.z_dim)
@@ -31,8 +36,10 @@ class Encoder(nn.Module):
 			if isinstance(m, nn.Linear):
 				m.weight.data.normal_(0.0, self.config.std)
 				m.bias.data.normal_(0.0, self.config.std)
-			if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
+			elif isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
 				m.weight.data.normal_(0.0, self.config.std)
+			elif isinstance(m, nn.BatchNorm2d):
+				m.weight.data.normal_(1.0, self.config.std)
 				m.bias.data.zero_()
 
 	def forward(self, input):
@@ -55,13 +62,16 @@ class Decoder(nn.Module):
 			nn.ReLU()
 			)
 		self.main_2 = nn.Sequential(
-			nn.ConvTranspose2d(32, 64, 4, 2, 1, bias=True),
-			nn.ReLU(),
-			nn.ConvTranspose2d(64, 32, 4, 2, 1, bias=True),
-			nn.ReLU(),
-			nn.ConvTranspose2d(32, 16, 4, 2, 1, bias=True),
-			nn.ReLU(),
-			nn.ConvTranspose2d(16, config.num_channels, 4, 2, 1, bias=True),
+			nn.ConvTranspose2d(128, 256, 4, 2, 1, bias=False),
+			nn.BatchNorm2d(256),
+			nn.ReLU(True),
+			nn.ConvTranspose2d(256, 128, 4, 2, 1, bias=False),
+			nn.BatchNorm2d(128),
+			nn.ReLU(True),
+			nn.ConvTranspose2d(128, 64, 4, 2, 1, bias=False),
+			nn.BatchNorm2d(64),
+			nn.ReLU(True),
+			nn.ConvTranspose2d(64, config.num_channels, 4, 2, 1, bias=False),
 			nn.Sigmoid()
 			)
 		self.reset_bias_and_weights()
@@ -73,7 +83,6 @@ class Decoder(nn.Module):
 				m.bias.data.normal_(0.0, self.config.std)
 			if isinstance(m, nn.Conv2d) or isinstance(m, nn.ConvTranspose2d):
 				m.weight.data.normal_(0.0, self.config.std)
-				m.bias.data.zero_()
 
 	def forward(self, input):
 		h = self.main_1(input)
