@@ -7,7 +7,7 @@ def str_to_bool(v):
 
 def get_default_parser():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--batch_size', type=int, default=128)
+	parser.add_argument('--batch_size', type=int, default=32)
 	parser.add_argument('--num_epochs', type=int, default=100)
 	parser.add_argument('--num_samples', type=int, default=64) # number of samples and ..
 	parser.add_argument('--num_every_nth_epoch', type=int, default=1) # .. how often to store them
@@ -18,8 +18,12 @@ def get_default_parser():
 	parser.add_argument('--ckpt_path', type=str, default="ckpt")
 	parser.add_argument('--data_path', type=str, default="data")
 	parser.add_argument('--img_path', type=str, default="img")
+	parser.add_argument('--output_path', type=str, default="")
 
-	parser.add_argument('--z_dim', type=int, default=100)
+	parser.add_argument('--dataset', type=str, default="mnist")
+	parser.add_argument('--training_digits', type=int, default=0)
+
+	parser.add_argument('--z_dim', type=int, default=256)
 	parser.add_argument('--lr_adam', type=float, default=1.e-3)
 	parser.add_argument('--beta_1', type=float, default=.5)
 	parser.add_argument('--beta_2', type=float, default=.999)

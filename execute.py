@@ -18,16 +18,17 @@ if __name__ == "__main__":
 
 	parser = get_default_parser()
 	config = parser.parse_args()
-	# training_digits = [0, 1, 2, 3, 4, 5, 6, 7, 9]
-	training_digits = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 	os.makedirs(config.ckpt_path, exist_ok=True)
 	os.makedirs(config.data_path, exist_ok=True)
 	os.makedirs(config.img_path, exist_ok=True)
 
-	# data_loader, config.img_size, config.num_channels = CIFAR10(config.data_path, config.batch_size, config.num_workers, condition_on=training_digits)
-	data_loader, img_size, num_channels = CIFAR10(config.data_path, config.batch_size, config.num_workers)
-	update_img_and_filter_dims(config, img_size, num_channels)
+	if config.dataset == "mnist":
+		data_loader, config.img_size, config.num_channels = MNIST(config.data_path, config.batch_size, config.num_workers, condition_on=[config.training_digits])
+		update_img_and_filter_dims(config, config.img_size, config.num_channels)
+	elif config.dataset == "cifar10":
+		data_loader, config.img_size, config.num_channels = CIFAR10(config.data_path, config.batch_size, config.num_workers, condition_on=[config.training_digits])
+		update_img_and_filter_dims(config, config.img_size, config.num_channels)
 
 	v = VAE(config)
 	v = v.cuda()

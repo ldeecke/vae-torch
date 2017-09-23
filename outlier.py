@@ -21,9 +21,14 @@ if __name__ == "__main__":
 
 	os.makedirs(config.ckpt_path, exist_ok=True)
 	os.makedirs(config.data_path, exist_ok=True)
+	if config.output_path is not "": os.makedirs(config.output_path, exist_ok=True)
 
-	data_loader, img_size, num_channels = CIFAR10(config.data_path, 1, config.num_workers, train=False)
-	update_img_and_filter_dims(config, img_size, num_channels)
+	if config.dataset == "mnist":
+		data_loader, config.img_size, config.num_channels = MNIST(config.data_path, 1, config.num_workers, train=False)
+		update_img_and_filter_dims(config, config.img_size, config.num_channels)
+	elif config.dataset == "cifar10":
+		data_loader, config.img_size, config.num_channels = CIFAR10(config.data_path, 1, config.num_workers, train=False)
+		update_img_and_filter_dims(config, config.img_size, config.num_channels)
 
 	v = VAE(config)
 	v = v.cuda()
@@ -56,5 +61,5 @@ if __name__ == "__main__":
 
 		if step >= config.num_test_samples: break
 
-	np.savetxt("labels.dat", np.asarray(storage["labels"]), delimiter=",", fmt=["%i"], comments="", header="")
-	np.savetxt("losses.dat", np.asarray(storage["losses"]), delimiter=",", fmt=["%2.8e"], comments="", header="")
+	np.savetxt(config.output_path + "labels.dat", np.asarray(storage["labels"]), delimiter=",", fmt=["%i"], comments="", header="")
+	np.savetxt(config.output_path + "losses.dat", np.asarray(storage["losses"]), delimiter=",", fmt=["%2.8e"], comments="", header="")
