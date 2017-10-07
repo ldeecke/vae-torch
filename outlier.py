@@ -24,10 +24,10 @@ if __name__ == "__main__":
 	if config.output_path is not "": os.makedirs(config.output_path, exist_ok=True)
 
 	if config.dataset == "mnist":
-		data_loader, config.img_size, config.num_channels = MNIST(config.data_path, 1, config.num_workers, train=False)
+		data_loader, config.img_size, config.num_channels = MNIST(config.data_path, 1, train=False)
 		update_img_and_filter_dims(config, config.img_size, config.num_channels)
 	elif config.dataset == "cifar10":
-		data_loader, config.img_size, config.num_channels = CIFAR10(config.data_path, 1, config.num_workers, train=False)
+		data_loader, config.img_size, config.num_channels = CIFAR10(config.data_path, 1, train=False)
 		update_img_and_filter_dims(config, config.img_size, config.num_channels)
 
 	v = VAE(config)
