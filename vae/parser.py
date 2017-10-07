@@ -42,6 +42,6 @@ def update_img_and_filter_dims(config, img_size, num_channels):
 def get_outlier_parser():
 	parser = get_default_parser()
 	parser.add_argument('--num_searches', type=int, default=8)
-	parser.add_argument('--num_test_samples', type=int, default=5000)
+	parser.add_argument('--num_test_samples', type=int, default=500)
 
 	return parser
