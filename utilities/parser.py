@@ -32,6 +32,8 @@ def get_default_parser():
 	parser.add_argument('--num_filters_in_final_layer', type=int, default=128)
 	parser.add_argument('--num_conv_layers', type=int, default=4)
 
+	parser.add_argument('--model', nargs="?", type=str, default="vae", const="vae")
+
 	return parser
 
 def update_img_and_filter_dims(config, img_size, num_channels):
@@ -39,8 +41,7 @@ def update_img_and_filter_dims(config, img_size, num_channels):
 	config.num_channels = num_channels
 	config.c_dim = [config.num_filters_in_final_layer, img_size // 2**config.num_conv_layers, img_size // 2**config.num_conv_layers]
 
-def get_outlier_parser():
-	parser = get_default_parser()
+def extend_parser_with_outlier_task(parser):
 	parser.add_argument('--num_searches', type=int, default=8)
 	parser.add_argument('--num_test_samples', type=int, default=500)
 

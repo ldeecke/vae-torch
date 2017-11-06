@@ -5,9 +5,11 @@ import torchvision
 import numpy as np
 import os, time
 
-from vae.parser import get_default_parser, update_img_and_filter_dims
-from vae.data import CIFAR10, MNIST, SVHN
-from vae.nn import VAE
+from utilities.data import CIFAR10, MNIST, SVHN
+from utilities.init import make_dirs, init_data_loader, write_preprocessor
+from utilities.output import write_logger, write_observations
+from utilities.parser import get_default_parser, update_img_and_filter_dims
+from architecture.nn import VAE
 
 to_np = lambda x: x.data.cpu().numpy()
 normalize_to_zero_one = lambda x: (x + 1.) / 2.
@@ -19,35 +21,33 @@ if __name__ == "__main__":
 	parser = get_default_parser()
 	config = parser.parse_args()
 
-	os.makedirs(config.ckpt_path, exist_ok=True)
-	os.makedirs(config.data_path, exist_ok=True)
-	os.makedirs(config.img_path, exist_ok=True)
+	make_dirs(config.ckpt_path, config.data_path, config.img_path)
 
-	if config.dataset == "mnist":
-		data_loader, config.img_size, config.num_channels = MNIST(config.data_path, config.batch_size, config.num_workers, condition_on=[config.training_digits])
-		update_img_and_filter_dims(config, config.img_size, config.num_channels)
-	elif config.dataset == "cifar10":
-		data_loader, config.img_size, config.num_channels = CIFAR10(config.data_path, config.batch_size, config.num_workers, condition_on=[config.training_digits])
-		update_img_and_filter_dims(config, config.img_size, config.num_channels)
+	data_loader, config.img_size, config.num_channels = init_data_loader(config.dataset, config.data_path, config.batch_size, training_digits=config.training_digits)
+	update_img_and_filter_dims(config, config.img_size, config.num_channels)
+
+	write_preprocessor(config)
 
 	v = VAE(config)
 	v = v.cuda()
 
-	if config.ckpt: v.load_state_dict(torch.load(os.path.join(config.ckpt_path, 'v.pth')))
+	if config.ckpt:
+		v.load_state_dict(torch.load(os.path.join(config.ckpt_path, 'v.pth')))
 
 	v_optim = torch.optim.Adam(v.parameters(), lr=config.lr_adam, betas=(config.beta_1, config.beta_2))
-
 	bce_loss = torch.nn.BCELoss(size_average=False) # no averaging, sum over batch, height and width
 
 	logger = {"loss": np.array([])}
 	z_fixed = Variable(torch.randn(config.num_samples, config.z_dim)).type(torch.cuda.FloatTensor)
 
 	for epoch in range(config.num_epochs):
-		if epoch >=1: print("\n[%2.2f]" % (time.time() - t0), end="\n")
+		if epoch >=1:
+			print("\n[%2.2f]" % (time.time() - t0), end="\n")
 		t0 = time.time()
 
 		for step, (images, _) in enumerate(data_loader, 0):
-			if step >= 1: print("[%i] [%i] [%2.2f] [%2.2f]" % (epoch, step, time.time() - t1, to_np(loss)), end="\r")
+			if step >= 1:
+				print("[%i] [%i] [%2.2f] [%2.2f]" % (epoch, step, time.time() - t1, to_np(loss)), end="\r")
 			t1 = time.time()
 
 			batch_size = images.size(0)
@@ -65,14 +65,6 @@ if __name__ == "__main__":
 			v_optim.zero_grad()
 
 		if epoch % config.num_every_nth_epoch == 0:
-			# every n'th epoch, plot samples ..
-			samples = v.Decoder(z_fixed)
-			torchvision.utils.save_image(samples.data, '%s/%03d.png' % (config.img_path, epoch / config.num_every_nth_epoch), normalize=True)
+			write_observations(config, epoch, z_fixed, v, logger, loss)
 
-			# .. checkpoint ..
-			torch.save(v.state_dict(), os.path.join(config.ckpt_path, 'v.pth'))
-
-			# .. and collect loss
-			logger["loss"] = np.append(logger["loss"], to_np(loss))
-
-	np.savetxt("logger.dat", np.vstack((np.arange(0, config.num_epochs, config.num_every_nth_epoch), logger["loss"])).T, delimiter=",", header="epoch,loss", fmt=["%i", "%2.8e"], comments="")
+	write_logger(config, logger)

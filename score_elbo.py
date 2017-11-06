@@ -3,11 +3,13 @@ from torch.autograd import Variable
 import torchvision
 
 import numpy as np
-import os, time
+import ast, os, time
 
-from vae.parser import get_outlier_parser, update_img_and_filter_dims
-from vae.data import CIFAR10, MNIST, SVHN
-from vae.nn import VAE
+from utilities.data import CIFAR10, MNIST, SVHN
+from utilities.init import make_dirs, init_data_loader
+from utilities.output import write_logger, write_observations
+from utilities.parser import get_default_parser, extend_parser_with_outlier_task, update_img_and_filter_dims
+from architecture.nn import VAE
 
 to_np = lambda x: x.data.cpu().numpy()
 normalize_to_zero_one = lambda x: (x + 1.) / 2.
@@ -16,19 +18,21 @@ if __name__ == "__main__":
 
 	torch.backends.cudnn.benchmark = True
 
-	parser = get_outlier_parser()
+	parser = get_default_parser()
+	parser = extend_parser_with_outlier_task(parser)
 	config = parser.parse_args()
 
-	os.makedirs(config.ckpt_path, exist_ok=True)
-	os.makedirs(config.data_path, exist_ok=True)
-	if config.output_path is not "": os.makedirs(config.output_path, exist_ok=True)
+	# determine type of checkpointed model, and dataset it was trained on
+	with open(os.path.join(config.ckpt_path, "preprocessor.dat"), 'r') as f:
+		preprocessor = ast.literal_eval(f.read())
+		print(preprocessor)
 
-	if config.dataset == "mnist":
-		data_loader, config.img_size, config.num_channels = MNIST(config.data_path, 1, train=False)
-		update_img_and_filter_dims(config, config.img_size, config.num_channels)
-	elif config.dataset == "cifar10":
-		data_loader, config.img_size, config.num_channels = CIFAR10(config.data_path, 1, train=False)
-		update_img_and_filter_dims(config, config.img_size, config.num_channels)
+	make_dirs(config.ckpt_path, config.data_path)
+	if config.output_path is not "":
+		make_dirs(config.output_path)
+
+	data_loader, config.img_size, config.num_channels = init_data_loader(preprocessor["dataset"], config.data_path, 1, train=False)
+	update_img_and_filter_dims(config, config.img_size, config.num_channels)
 
 	v = VAE(config)
 	v = v.cuda()
@@ -47,7 +51,6 @@ if __name__ == "__main__":
 		batch_size = images.size(0)
 
 		x = Variable(images.type(torch.cuda.FloatTensor))
-		# x = x.resize(batch_size, config.num_channels * config.img_size**2)
 		x = x.repeat(config.num_searches, 1, 1, 1)
 		x = normalize_to_zero_one(x)
 		x_r = v(x) # reconstruction
