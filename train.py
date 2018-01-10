@@ -8,7 +8,7 @@ import os, time
 from utilities.data import CIFAR10, MNIST, SVHN
 from utilities.init import make_dirs, init_data_loader, write_preprocessor
 from utilities.output import write_logger, write_observations
-from utilities.parser import get_default_parser, update_img_and_filter_dims
+from utilities.parser import get_default_parser, update_code_dim
 from architecture.nn import VAE
 
 to_np = lambda x: x.data.cpu().numpy()
@@ -24,8 +24,8 @@ if __name__ == "__main__":
 	make_dirs(config.ckpt_path, config.data_path, config.img_path)
 
 	data_loader, config.img_size, config.num_channels = init_data_loader(config.dataset, config.data_path, config.batch_size, training_digits=config.training_digits)
-	update_img_and_filter_dims(config, config.img_size, config.num_channels)
 
+	update_code_dim(config)
 	write_preprocessor(config)
 
 	v = VAE(config)

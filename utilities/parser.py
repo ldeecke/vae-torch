@@ -36,10 +36,11 @@ def get_default_parser():
 
 	return parser
 
-def update_img_and_filter_dims(config, img_size, num_channels):
-	config.img_size = img_size
-	config.num_channels = num_channels
-	config.c_dim = [config.num_filters_in_final_layer, img_size // 2**config.num_conv_layers, img_size // 2**config.num_conv_layers]
+def update_code_dim(config):
+	"""computes the size of the latent code
+	from the architecture of the underlying
+	convolutional neural networks"""
+	config.c_dim = [config.num_filters_in_final_layer, config.img_size // 2**config.num_conv_layers, config.img_size // 2**config.num_conv_layers]
 
 def extend_parser_with_outlier_task(parser):
 	parser.add_argument('--num_searches', type=int, default=8)
