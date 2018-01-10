@@ -22,7 +22,9 @@ def make_dirs(*args):
 		os.makedirs(dir, exist_ok=True)
 
 def write_preprocessor(config):
-	preprocessor = {"dataset": config.dataset, "model": config.model, "condition_on": config.training_digits}
+	preprocessor = config
+	print(vars(preprocessor))
 	f = open(config.ckpt_path + "/preprocessor.dat", 'w')
-	f.write(str(preprocessor))
+	f.write(str(vars(preprocessor)))
+	f.close()
 
