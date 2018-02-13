@@ -4,7 +4,7 @@ Training is available for data from MNIST, CIFAR10, and both datasets may be con
 
 For scoring anomalies on the respective test set, evoke `python3 score_elbo.py` and make sure to point toward a trained instance with `--ckpt_path`.
 
-Other available commands are listed by calling `python3 -h`.
+Other available commands are listed by calling `python3 train.py -h`.
 
 ---
 

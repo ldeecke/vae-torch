@@ -41,7 +41,7 @@ if __name__ == "__main__":
 	z_fixed = Variable(torch.randn(config.num_samples, config.z_dim)).type(torch.cuda.FloatTensor)
 
 	for epoch in range(config.num_epochs):
-		if epoch >=1:
+		if epoch >= 1:
 			print("\n[%2.2f]" % (time.time() - t0), end="\n")
 		t0 = time.time()
 
