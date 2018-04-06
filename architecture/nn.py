@@ -5,6 +5,7 @@ import torch.nn as nn
 from itertools import chain
 from numpy import prod
 
+
 class Encoder(nn.Module):
 	"""
 	Encoder, x --> mu, log_sigma_sq
@@ -15,17 +16,17 @@ class Encoder(nn.Module):
 
 		self.main = nn.Sequential(
 			nn.Conv2d(config.num_channels, 64, 4, 2, 1, bias=False),
+			nn.ReLU(True),
 			nn.BatchNorm2d(64),
-			nn.ReLU(True),
 			nn.Conv2d(64, 128, 4, 2, 1, bias=False),
-			nn.BatchNorm2d(128),
 			nn.ReLU(True),
+			nn.BatchNorm2d(128),
 			nn.Conv2d(128, 256, 4, 2, 1, bias=False),
-			nn.BatchNorm2d(256),
 			nn.ReLU(True),
+			nn.BatchNorm2d(256),
 			nn.Conv2d(256, 128, 4, 2, 1, bias=False),
-			nn.BatchNorm2d(128),
-			nn.ReLU(True)
+			nn.ReLU(True),
+			nn.BatchNorm2d(128)
 			)
 		self.linear_mu = nn.Linear(int(prod(config.c_dim)), self.config.z_dim)
 		self.linear_log_sigma_sq = nn.Linear(int(prod(config.c_dim)), self.config.z_dim)
@@ -63,14 +64,14 @@ class Decoder(nn.Module):
 			)
 		self.main_2 = nn.Sequential(
 			nn.ConvTranspose2d(128, 256, 4, 2, 1, bias=False),
+			nn.ReLU(True),
 			nn.BatchNorm2d(256),
-			nn.ReLU(True),
 			nn.ConvTranspose2d(256, 128, 4, 2, 1, bias=False),
+			nn.ReLU(True),
 			nn.BatchNorm2d(128),
-			nn.ReLU(True),
 			nn.ConvTranspose2d(128, 64, 4, 2, 1, bias=False),
-			nn.BatchNorm2d(64),
 			nn.ReLU(True),
+			nn.BatchNorm2d(64),
 			nn.ConvTranspose2d(64, config.num_channels, 4, 2, 1, bias=False),
 			nn.Sigmoid()
 			)

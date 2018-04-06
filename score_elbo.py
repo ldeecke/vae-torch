@@ -8,7 +8,7 @@ import ast, os, time
 from utilities.data import CIFAR10, MNIST, SVHN
 from utilities.init import make_dirs, init_data_loader
 from utilities.output import write_logger, write_observations
-from utilities.parser import get_default_parser, extend_parser_with_outlier_task, update_img_and_filter_dims
+from utilities.parser import get_default_parser, extend_parser_with_outlier_task, update_code_dim
 from architecture.nn import VAE
 
 to_np = lambda x: x.data.cpu().numpy()
@@ -32,13 +32,12 @@ if __name__ == "__main__":
 		make_dirs(config.output_path)
 
 	data_loader, config.img_size, config.num_channels = init_data_loader(preprocessor["dataset"], config.data_path, 1, train=False)
-	update_img_and_filter_dims(config, config.img_size, config.num_channels)
+	update_code_dim(config)
 
 	v = VAE(config)
 	v = v.cuda()
 	v.load_state_dict(torch.load(os.path.join(config.ckpt_path, 'v.pth')))
-
-	v_optim = torch.optim.Adam(v.parameters(), lr=config.lr_adam, betas=(config.beta_1, config.beta_2))
+	v.eval()
 
 	bce_loss = torch.nn.BCELoss(size_average=False) # no averaging, sum over batch, height and width
 
@@ -62,7 +61,18 @@ if __name__ == "__main__":
 		storage["labels"].append(*labels.numpy())
 		storage["losses"].append(*to_np(loss))
 
-		if step >= config.num_test_samples: break
+		if step >= config.num_test_samples:
+			break
 
-	np.savetxt(config.output_path + "labels.dat", np.asarray(storage["labels"]), delimiter=",", fmt=["%i"], comments="", header="")
-	np.savetxt(config.output_path + "losses.dat", np.asarray(storage["losses"]), delimiter=",", fmt=["%2.8e"], comments="", header="")
+	np.savetxt(os.path.join(config.output_path, "labels.dat"),
+		np.asarray(storage["labels"]),
+		delimiter=",",
+		fmt=["%i"],
+		comments="",
+		header="")
+	np.savetxt(os.path.join(config.output_path, "losses.dat"),
+		np.asarray(storage["losses"]),
+		delimiter=",",
+		fmt=["%2.8e"],
+		comments="",
+		header="")

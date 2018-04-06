@@ -7,11 +7,10 @@ def MNIST(data_path, batch_size, shuffle=True, train=True, condition_on=None, nu
 	img_size, num_channels = 28, 1
 	img_size_scaled = rescale_to
 	transform = torchvision.transforms.Compose([
-								torchvision.transforms.Scale(img_size_scaled),
-								torchvision.transforms.CenterCrop(img_size_scaled),
-								torchvision.transforms.ToTensor(),
-								torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-								])
+		torchvision.transforms.Scale(img_size_scaled),
+		torchvision.transforms.CenterCrop(img_size_scaled),
+		torchvision.transforms.ToTensor()
+		])
 	dataset = torchvision.datasets.MNIST(data_path, train, download=True, transform=transform)
 
 	if condition_on is not None:
@@ -51,11 +50,11 @@ def CIFAR10(data_path, batch_size, shuffle=True, train=True, condition_on=None, 
 	img_size, num_channels = 32, 3
 	img_size_scaled = rescale_to
 	transform = torchvision.transforms.Compose([
-								torchvision.transforms.Scale(img_size_scaled),
-								torchvision.transforms.CenterCrop(img_size_scaled),
-								torchvision.transforms.ToTensor(),
-								torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-								])
+		torchvision.transforms.Scale(img_size_scaled),
+		torchvision.transforms.CenterCrop(img_size_scaled),
+		torchvision.transforms.ToTensor(),
+		torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+		])
 	dataset = torchvision.datasets.CIFAR10(data_path, train, download=True, transform=transform)
 
 	if condition_on is not None:
@@ -95,10 +94,10 @@ def SVHN(data_path, batch_size, shuffle=True, split="train", num_workers=0, resc
 	img_size, num_channels = 32, 3
 	img_size_scaled = rescale_to
 	transform = torchvision.transforms.Compose([
-								torchvision.transforms.Scale(img_size_scaled),
-								torchvision.transforms.CenterCrop(img_size_scaled),
-								torchvision.transforms.ToTensor(),
-								torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-								])
+		torchvision.transforms.Scale(img_size_scaled),
+		torchvision.transforms.CenterCrop(img_size_scaled),
+		torchvision.transforms.ToTensor(),
+		torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+		])
 	dataset = torchvision.datasets.SVHN(data_path, split, download=True, transform=transform)
 	return torch.utils.data.DataLoader(dataset, shuffle=shuffle, batch_size=batch_size, num_workers=num_workers), img_size_scaled, num_channels
