@@ -8,4 +8,4 @@ Other available commands are listed by calling `python3 train.py -h`.
 
 ---
 
-Kingma, D. P., & Welling, M. (2013). **Auto-encoding variational bayes**. *arXiv preprint arXiv:1312.6114*.
+Kingma, D. P. & Welling, M. (2013). **Auto-encoding variational bayes**. *arXiv preprint arXiv:1312.6114*.

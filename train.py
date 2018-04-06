@@ -30,6 +30,7 @@ if __name__ == "__main__":
 
 	v = VAE(config)
 	v = v.cuda()
+	v.train()
 
 	if config.ckpt:
 		v.load_state_dict(torch.load(os.path.join(config.ckpt_path, 'v.pth')))
